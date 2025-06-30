@@ -1,0 +1,10 @@
+mlflow:
+  build:
+    context: .
+    dockerfile: mlflow.dockerfile
+  ports:
+    - "5000:5000"
+  volumes:
+    - "./mlflow_data:/home/mlflow_data"
+  networks:
+    - app-network
