@@ -1,0 +1,18 @@
+# config file version
+apiVersion: 1
+
+# list of datasources to insert/update
+# available in the database
+datasources:
+  # Defining a PostgreSQL datasource
+  - name: PostgreSQL     # Name of the datasource in Grafana UI
+    type: postgres       # Type of datasource (PostgreSQL)
+    access: proxy        # Connection mode (proxy means Grafana server connects)
+    url: db:5432         # Database host and port
+    database: test       # Database name
+    user: postgres       # Username for database connection
+    secureJsonData:
+      password: 'example'  # Password stored securely (encrypted)
+    jsonData:
+      sslmode: 'disable'   # SSL mode (disabled here)
+      database: test       # Database name (repeated)

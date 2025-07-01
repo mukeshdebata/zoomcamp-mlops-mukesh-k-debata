@@ -1,0 +1,42 @@
+# Docker Compose Configuration for MLOps Monitoring Stack
+
+volumes: 
+  grafana_data: {}  # Persistent volume for storing Grafana configuration and data
+
+networks:
+  front-tier:  # External-facing network for services that need to be accessible from outside
+  back-tier:   # Internal network for services to communicate with each other securely
+
+services:
+  db:
+    image: postgres  # Uses the official PostgreSQL image
+    restart: always  # Ensures the container restarts if it crashes
+    environment:
+      POSTGRES_PASSWORD: example  # Sets the default PostgreSQL password
+    ports:
+      - "5432:5432"  # Maps host port 5432 to container port 5432
+    networks:
+      - back-tier  # Only accessible via the internal network
+
+  adminer:
+    image: adminer  # Uses the official Adminer image for database management
+    restart: always  # Ensures the container restarts if it crashes
+    ports:
+      - "8080:8080"  # Maps host port 8080 to container port 8080
+    networks:
+      - back-tier  # Connected to internal network to access the database
+      - front-tier  # Connected to external network for UI access
+
+  grafana:
+    image: grafana/grafana-enterprise  # Uses the enterprise version of Grafana
+    user: "472"  # Runs as non-root user for security
+    ports:
+      - "3000:3000"  # Maps host port 3000 to container port 3000
+    volumes:
+      - ./config/grafana_datasources.yaml:/etc/grafana/provisioning/datasources/datasource.yaml:ro  # Mounts datasource config as read-only
+      - ./config/grafana_dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml:ro  # Mounts dashboard config as read-only
+      - ./dashboards:/opt/grafana/dashboards  # Mounts dashboard definitions
+    networks:
+      - back-tier  # Connected to internal network to access the database
+      - front-tier  # Connected to external network for UI access
+    restart: always  # Ensures the container restarts if it crashes
